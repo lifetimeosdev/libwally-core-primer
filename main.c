@@ -3,6 +3,7 @@
 #include <pwd.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 #include <wally_bip39.h>
 #include <wally_bip32.h>
@@ -29,12 +30,15 @@ int main(int argc, char const *argv[])
 	char mnemonic[1024] = {0};
 
 	printf("Plese input mnemonic:\n");
-	fgets(mnemonic, 1024, stdin);
+	if (fgets(mnemonic, 1024, stdin) == NULL) {
+		printf("Read mnemonic error:%s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 	mnemonic[strcspn(mnemonic, "\r\n")] = 0;
 
 	printf("Your mnemonic is:%s\n", mnemonic);
 
-	char *pass = getpass("Please input passphrase(do not use):");
+	char *pass = getpass("Please input passphrase(optional):");
 
 	wally_init(0);
 
