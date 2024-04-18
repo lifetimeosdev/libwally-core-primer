@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 
 #include <wally_bip39.h>
 #include <wally_bip32.h>
@@ -12,14 +13,23 @@
 
 static void print_pk(unsigned char *pk)
 {
-	printf("pk: 0x");
-	for (size_t i = EC_PRIVATE_KEY_LEN / 2; i < EC_PRIVATE_KEY_LEN; i++) {
-		printf("%02x", pk[i]);
+	size_t lines = 4;
+	size_t line_bytes = EC_PRIVATE_KEY_LEN / 4;
+	assert(lines * line_bytes == EC_PRIVATE_KEY_LEN);
+
+	for (size_t i = 0; i < lines; i++) {
+		if (i == 0) {
+			printf("pk:\n(%ld). 0x", i + 1);
+		} else {
+
+			printf("(%ld). ", i + 1);
+		}
+		for (size_t j = i * line_bytes; j < (i + 1) * line_bytes; j++) {
+			printf("%02x", pk[j]);
+		}
+		printf("\n");
 	}
-	for (size_t i = 0; i < EC_PRIVATE_KEY_LEN / 2; i++) {
-		printf("%02x", pk[i]);
-	}
-	printf("\n");
+
 	fflush(stdout);
 }
 
