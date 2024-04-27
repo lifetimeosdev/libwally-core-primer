@@ -21,7 +21,6 @@ static void print_pk(unsigned char *pk)
 		if (i == 0) {
 			printf("pk:\n(%ld). 0x", i + 1);
 		} else {
-
 			printf("(%ld). ", i + 1);
 		}
 		for (size_t j = i * line_bytes; j < (i + 1) * line_bytes; j++) {

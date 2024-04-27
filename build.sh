@@ -16,7 +16,7 @@ git submodule update
 make -j8
 make install
 
-progname=main_$(uname --kernel-name )_$(uname --processor)
+progname=main_$(uname --kernel-name )_$(uname --machine)
 
 gcc -Wall -Werror -O3 -static \
 	-I./build/include -L./build/lib \
