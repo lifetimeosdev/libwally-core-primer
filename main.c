@@ -49,6 +49,30 @@ int main(int argc, char const *argv[])
 	printf("Your mnemonic is:%s\n", mnemonic);
 
 	char *pass = getpass("Please input passphrase(optional):");
+	if (pass && strlen(pass)) {
+		char *pass_buf1 = calloc(1, NSS_BUFLEN_PASSWD);
+		char *pass_buf2 = calloc(1, NSS_BUFLEN_PASSWD);
+		if (!pass_buf1 || !pass_buf2) {
+			memset(pass, 0, NSS_BUFLEN_PASSWD);
+			fprintf(stderr, "calloc error\n");
+			exit(EXIT_FAILURE);
+		}
+		memcpy(pass_buf1, pass, NSS_BUFLEN_PASSWD);
+		pass = getpass("Please input passphrase again:");
+		memcpy(pass_buf2, pass, NSS_BUFLEN_PASSWD);
+		if (strlen(pass_buf1) != strlen(pass_buf2) || strcmp(pass_buf1, pass_buf2)) {
+			memset(pass, 0, NSS_BUFLEN_PASSWD);
+			memset(pass_buf1, 0, NSS_BUFLEN_PASSWD);
+			memset(pass_buf2, 0, NSS_BUFLEN_PASSWD);
+			fprintf(stderr, "Two passphrases don't match.\n");
+			exit(EXIT_FAILURE);
+		}
+		memset(pass_buf1, 0, NSS_BUFLEN_PASSWD);
+		memset(pass_buf2, 0, NSS_BUFLEN_PASSWD);
+		free(pass_buf1);
+		free(pass_buf2);
+		printf("Your passphase len is:%ld\n", strlen(pass));
+	}
 
 	wally_init(0);
 
@@ -62,7 +86,10 @@ int main(int argc, char const *argv[])
 		fprintf(stderr, "bip39_mnemonic_to_seed512 err:%d\n", ret);
 		exit(EXIT_FAILURE);
 	}
-	memset(pass, 0, NSS_BUFLEN_PASSWD);
+	memset(mnemonic, 0, sizeof(mnemonic));
+	if (pass) {
+		memset(pass, 0, NSS_BUFLEN_PASSWD);
+	}
 
 	struct ext_key master_key = {0};
 	ret = bip32_key_from_seed(seed, BIP39_SEED_LEN_512, BIP32_VER_MAIN_PRIVATE, 0, &master_key);
